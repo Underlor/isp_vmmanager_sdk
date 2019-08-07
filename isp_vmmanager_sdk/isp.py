@@ -1,7 +1,7 @@
 import requests
 from requests import Session
 
-from errors import ApiException, NeedPasswordOrKey, AuthException
+from .errors import ApiException, NeedPasswordOrKey, AuthException
 
 
 class ISPApi:

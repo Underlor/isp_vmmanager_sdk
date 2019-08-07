@@ -1,7 +1,7 @@
 import re
 
-from isp import ISPApi
-from utils import key_generator
+from .isp import ISPApi
+from .utils import key_generator
 
 
 class VMManager(ISPApi):
