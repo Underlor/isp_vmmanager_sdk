@@ -126,18 +126,18 @@ class VMManager(ISPApi):
     def vm_restart(self, vm_id):
         self.send_request('vm.restart', dict(elid=vm_id))
 
-    def vm_change_pass(self, vm_id, password=None) -> str:
+    def vm_change_pass(self, vm_id, new_password=None) -> str:
         """
         Смена пароля root
         :param vm_id:
-        :param password: Пароль который нужно установить
+        :param new_password: Пароль который нужно установить
         :return: в ответ возвращает установленный пароль
         """
-        if not password:
-            password = key_generator(12)
+        if not new_password:
+            new_password = key_generator(12)
 
-        self.send_request('vm.chpasswd', dict(elid=vm_id, password=password, confirm=password, sok='ok'))
-        return password
+        self.send_request('vm.chpasswd', dict(elid=vm_id, password=new_password, confirm=new_password, sok='ok'))
+        return new_password
 
     def vm_reinstall(self, vm_id, vmi, recipe, osname, new_password=None, password=None, sshpubkey=None):
         """
@@ -188,3 +188,6 @@ class VMManager(ISPApi):
 
     def get_hosts(self):
         return self.send_request('vmhostnode', dict())
+
+    def get_ostemplate(self, template_id):
+        return self.send_request('osmgr.edit', dict(elid=template_id))

@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name='isp_vmmanager_sdk',
-    version='1.0.1',
+    version='1.1.0',
     author='Underlor',
     author_email='cfyz_74@mail.ru',
     url='https://github.com/Underlor/isp_vmmanager_sdk',
