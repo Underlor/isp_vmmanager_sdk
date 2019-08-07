@@ -1,3 +1,5 @@
+import re
+
 from isp import ISPApi
 from utils import key_generator
 
@@ -171,3 +173,18 @@ class VMManager(ISPApi):
 
     def change_owner(self, vm_id, user_id):
         return self.send_request('vm.edit', dict(elid=vm_id, user=user_id, sok='ok'))
+
+    def get_host(self, host_id):
+        return self.send_request('vmhostnode.edit', dict(elid=host_id))
+
+    def get_host_info(self, host_id):
+        return self.send_request('vmhostnode.info', dict(elid=host_id))
+
+    def get_host_usedmem(self, host_id):
+        host_info = self.get_host_info(host_id)
+        for item in host_info['elem']:
+            if item['type']['$orig'] == 'paid_mem':
+                return int(re.search(r'\d+', item['info']['$']).group())
+
+    def get_hosts(self):
+        return self.send_request('vmhostnode', dict())
