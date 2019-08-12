@@ -209,3 +209,6 @@ class VMManager(ISPApi):
         elids.remove('vm.novnc')
         elids = ', '.join(elids)
         self.send_request('userrights.suspend', dict(elid=elids, plid=username))
+
+    def get_vms_info(self):
+        return self.send_request('vm', dict(p_cnt=9999))['elem']
