@@ -54,6 +54,7 @@ class ISPApi:
             request_data['password'] = password
         else:
             request_data['key'] = auth_key
+            request_data['checkcookie'] = 'no'
 
         response = self._send_request(request_data).json()['doc']
 

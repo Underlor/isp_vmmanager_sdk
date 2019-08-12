@@ -7,7 +7,11 @@ from .utils import key_generator
 class VMManager(ISPApi):
     def get_user_session_key(self, username) -> str:
         key = key_generator(32)
-        self.send_request('session.newkey', dict(authinfo=f"{self.username}:{self.password}", name=username, key=key))
+        request = dict(
+            username=username,
+            key=key,
+        )
+        self.send_request('session.newkey', request)
         return self.get_session_key(username, auth_key=key)
 
     def create_user(self, username, password=None) -> int:
@@ -49,13 +53,14 @@ class VMManager(ISPApi):
         """
         return self.send_request('user', dict())['elem']
 
-    def create_vm(self, name, user_id, preset, vmi, recipe, osname, domain, vsize, mem, vcpu, password, clock_offset,
-                  cputune=1000, blkiotune=500, inbound=None, outbound=None, sshpubkey=None):
+    def create_vm(self, name, user_id, preset, hostnode, vmi, recipe, osname, domain, vsize, mem, vcpu, password,
+                  clock_offset, cputune=1000, blkiotune=500, inbound=None, outbound=None, sshpubkey=None):
         """
 
         :param name: Уникальное название для виртуалки
         :param user_id: ID пользователя владельца(По дефолту ID от кого запрос)
         :param preset: Шаблон виртуальной машины (Его ID из списка)
+        :param hostnode: Узел кластера (Его ID из списка)
         :param vmi: Код шаблона (пример: ISPsystem__CentOS-7-amd64)
         :param recipe: Рецепт после установки(Для пустого: 'null',
                        для локальнных: '#local__teamspeak.sh' для ips: 'ISPsystem__bitrixcrm.sh')
@@ -81,6 +86,7 @@ class VMManager(ISPApi):
             name=name,
             user=user_id,
             preset=preset,
+            hostnode=hostnode,
             installtype='installtemplate',
             vmi=vmi,
             recipe=recipe,
@@ -107,7 +113,7 @@ class VMManager(ISPApi):
     def get_vm_info(self, vm_id):
         """
         Получение основной информации по вм пример ответа в vm_info.json
-        :param vm_id:
+        :param vm_id: ID виртуалки
         :return:
         """
 
@@ -191,3 +197,15 @@ class VMManager(ISPApi):
 
     def get_ostemplate(self, template_id):
         return self.send_request('osmgr.edit', dict(elid=template_id))
+
+    def suspend_all_rights(self, user_id, username):
+        elids = []
+        result = self.send_request('userrights', dict(elid=user_id))['elem']
+        for item in result:
+            elids.append(item['name']['$'])
+            children = self.send_request('userrights', dict(plid=username, elid=item['name']['$'])).get('elem', [])
+            for child in children:
+                elids.append(child['name']['$'])
+        elids.remove('vm.novnc')
+        elids = ', '.join(elids)
+        self.send_request('userrights.suspend', dict(elid=elids, plid=username))
